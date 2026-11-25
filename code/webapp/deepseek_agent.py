@@ -121,14 +121,18 @@ class Agent:
                                for n in range(clusters)]}
         raise AgentError('工具不存在。')
 
-    def chat(self, message, history=None, model='', context=None):
+    def chat(self, message, history=None, model='', context=None, language='zh'):
         if not isinstance(message, str) or not message.strip() or len(message) > 6000:
             raise AgentError('请输入6000字以内的问题。')
         with self.lock:
             key, chosen = self.key, model or self.model
             if not key or chosen not in self.models:
                 raise AgentError('分析服务尚未启用，请完成服务端配置。')
-        messages = [{'role': 'system', 'content': SYSTEM}]
+        prompt = SYSTEM
+        if language == 'en':
+            prompt = prompt.replace('用中文简洁回答', 'Answer concisely in English')
+            prompt += '\nWrite the entire response in English, including headings and biological interpretations.'
+        messages = [{'role': 'system', 'content': prompt}]
         if isinstance(context, dict):
             overview = self.tool('get_overview', {})
             ids = [d['id'] for d in overview['datasets']]

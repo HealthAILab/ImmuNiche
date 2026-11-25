@@ -1,5 +1,16 @@
 # ImmuNiche
 
+Streamlit 入口现在直接使用 `code/webapp/static` 中的本地网页界面，配色、布局和交互由同一套 HTML/CSS/JavaScript 提供。
+
+修改本地网页后同步组件：
+
+```bash
+python scripts/sync_local_ui.py
+streamlit run streamlit_app.py
+```
+
+将源文件和生成的 `code/webapp/component` 一并提交到 GitHub 的 `main` 分支，Community Cloud 自动更新已绑定的应用。
+
 免疫细胞状态、空间生态位分析与模型结果解读工作台。
 
 ## 功能
