@@ -19,12 +19,55 @@ from deepseek_agent import Agent, AgentError
 
 st.set_page_config(page_title='ImmuNiche', page_icon='◈', layout='wide')
 st.markdown('''<style>
-.stApp,[data-testid="stSidebar"]{background:#fff;color:#20334a}
-[data-testid="stSidebar"]{border-right:1px solid #e5eaf0}
-[data-testid="stMetric"]{border:1px solid #e5eaf0;border-radius:12px;padding:18px;background:#fff}
-.block-container{padding-top:2rem;max-width:1500px}h1,h2,h3{color:#20334a}
-[data-testid="stChatMessage"]{background:#f8fafc;border:1px solid #e5eaf0}
+html,body,[data-testid="stAppViewContainer"]{background:#f4f8fa;color:#0f2531}
+[data-testid="stHeader"]{background:transparent}
+.block-container{padding-top:2.6rem;padding-bottom:3rem;max-width:1320px}
+h1{font-size:1.85rem!important;letter-spacing:-.03em;color:#0f2531;margin-bottom:.1rem!important}
+h2{font-size:1.12rem!important;letter-spacing:-.01em;color:#0f2531;padding-bottom:.3rem}
+h3{font-size:.98rem!important;color:#0f2531}
+p,li{color:#4d6778}
+a{color:#0c8478}
+hr{border-color:#e3ebf0;margin:.9rem 0}
+.eyebrow{font-size:.68rem;letter-spacing:.16em;font-weight:700;color:#0c8478;text-transform:uppercase;margin:0 0 .45rem}
+.brand{display:flex;align-items:center;gap:.55rem;margin-bottom:.1rem}
+.brand-icon{font-size:1.5rem;color:#0c8478;line-height:1}
+.brand b{display:block;font-size:1.15rem;letter-spacing:-.01em;color:#0f2531}
+.brand small{display:block;font-size:.68rem;color:#6b7f8d;letter-spacing:.01em;margin-top:.15rem}
+.workspace-label{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b7f8d;margin:1.4rem 0 .45rem}
+[data-testid="stSidebar"]{background:#fafcfd;border-right:1px solid #e3ebf0}
+[data-testid="stSidebar"] .block-container{padding-top:1.5rem}
+.stRadio>div{gap:.15rem}
+.stRadio [role="radiogroup"] label{padding:.5rem .7rem;border-radius:9px;transition:background .14s}
+.stRadio [role="radiogroup"] label>div:first-child{display:none}
+.stRadio [role="radiogroup"] label p{font-size:.9rem!important;font-weight:500;color:#26404f}
+.stRadio [role="radiogroup"] label:hover{background:#eff6f8}
+.stRadio [role="radiogroup"] label:has(input:checked){background:#dcf2ec}
+.stRadio [role="radiogroup"] label:has(input:checked) p{color:#075c54;font-weight:600}
+[data-testid="stMetric"]{background:#fff;border:1px solid #e3ebf0;border-radius:12px;padding:15px 17px;box-shadow:0 1px 2px rgba(15,55,72,.04),0 6px 20px rgba(15,55,72,.045)}
+[data-testid="stMetricLabel"] p{font-size:.8rem;color:#4d6778}
+[data-testid="stMetricValue"]{font-size:1.85rem;letter-spacing:-.035em;color:#0f2531;font-variant-numeric:tabular-nums}
+[data-testid="stVerticalBlockBorderWrapper"]{background:#fff;border:1px solid #e3ebf0!important;border-radius:12px;box-shadow:0 1px 2px rgba(15,55,72,.04),0 6px 20px rgba(15,55,72,.045)}
+[data-testid="stVerticalBlockBorderWrapper"]>div{padding:1rem 1.1rem!important}
+.stButton>button,[data-testid="stDownloadButton"]>button{border-radius:9px;border:1px solid #e3ebf0;background:#fff;color:#26404f;font-weight:600;font-size:.83rem;padding:.4rem 1rem;box-shadow:0 1px 2px rgba(15,55,72,.04)}
+.stButton>button:hover,[data-testid="stDownloadButton"]>button:hover{border-color:#cfe0e8;background:#f6fafb;color:#0f2531}
+.stButton>button[kind="primary"]{background:#0c8478;border-color:#0c8478;color:#fff}
+.stButton>button[kind="primary"]:hover{background:#0a6f66;border-color:#0a6f66;color:#fff}
+[data-baseweb="select"]>div{border-radius:8px;border-color:#d7e2e9;background:#fff}
+[data-testid="stTextInput"] input{border-radius:8px}
+.stProgress>div>div>div{background:#0c8478}
+[data-testid="stChatMessage"]{background:#fff;border:1px solid #e3ebf0;border-radius:12px;padding:.85rem 1rem}
+[data-testid="stExpander"]{border:1px solid #e3ebf0;border-radius:10px;background:#fff}
+.stAlert{border-radius:10px}
+[data-testid="stSidebar"] .stSelectbox label p{font-size:.74rem;color:#6b7f8d;font-weight:600}
+[data-testid="stAppDeployButton"],[data-testid="stToolbar"],#MainMenu,footer{display:none!important}
+[data-testid="stSidebar"] .stCaptionContainer p{font-size:.72rem;color:#93a4af}
+[data-testid="stVerticalBlockBorderWrapper"] h3{margin:0 0 .15rem!important}
+[data-testid="stPlotlyChart"]{background:#fff;border:1px solid #e3ebf0;border-radius:12px;padding:6px 8px;box-shadow:0 1px 2px rgba(15,55,72,.04)}
 </style>''', unsafe_allow_html=True)
+
+
+def eyebrow(text):
+    st.markdown(f'<div class="eyebrow">{text}</div>', unsafe_allow_html=True)
 
 
 @st.cache_data(show_spinner='正在读取分析结果…')
@@ -67,17 +110,21 @@ def agent_for(_key):
     return agent
 
 
+CATEGORICAL = ['#0c8478', '#5984c2', '#e2a14e', '#ad70ad', '#6eac6a', '#d57676', '#8a9ba7']
+CONTINUOUS = [[0, '#eef9f6'], [0.45, '#9adcd0'], [1, '#0c8478']]
+
+
 def scatter(dataset, colors, color_label, continuous=False, key='plot'):
     xy = np.asarray(dataset['coords'])
     frame = pd.DataFrame({'x': xy[:, 0], 'y': xy[:, 1], color_label: colors,
                           '细胞ID': dataset['cell_ids'], '细胞类型': [names.get(t, t) for t in dataset['labels']]})
     chart = px.scatter(frame, x='x', y='y', color=color_label,
-                       color_discrete_sequence=px.colors.qualitative.Safe,
-                       color_continuous_scale='Blues', hover_data=['细胞ID', '细胞类型'], render_mode='webgl')
+                       color_discrete_sequence=CATEGORICAL,
+                       color_continuous_scale=CONTINUOUS, hover_data=['细胞ID', '细胞类型'], render_mode='webgl')
     chart.update_traces(marker={'size': 4, 'opacity': 0.85})
     chart.update_layout(height=560, paper_bgcolor='white', plot_bgcolor='white',
                         margin={'l': 0, 'r': 0, 'b': 0, 't': 10}, legend_title_text=color_label,
-                        dragmode='pan', font={'color': '#334155'})
+                        dragmode='pan', font={'color': '#4d6778', 'size': 11}, legend={'font': {'size': 11}})
     if dataset['modality'] == 'spatial':
         chart.update_yaxes(scaleanchor='x', scaleratio=1)
     st.plotly_chart(chart, width="stretch", key=key, config={'displaylogo': False, 'scrollZoom': True, 'toImageButtonOptions': {'format': 'png', 'filename': key}})
@@ -106,9 +153,9 @@ names = data['type_names']
 reference = next(d for d in data['datasets'] if d['modality'] == 'scrna')
 spatial_items = [d for d in data['datasets'] if d['modality'] == 'spatial']
 with st.sidebar:
-    st.title('ImmuNiche')
-    st.caption('免疫细胞状态与空间生态位')
-    page = st.radio('分析工作台', ['数据概览', '细胞状态与代谢', '空间与生态位', '模型结果', '智能体'], label_visibility='collapsed')
+    st.markdown('<div class="brand"><span class="brand-icon">◈</span><div><b>ImmuNiche</b><small>免疫细胞状态与空间生态位</small></div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="workspace-label">分析</div>', unsafe_allow_html=True)
+    page = st.radio('分析导航', ['数据概览', '细胞状态与代谢', '空间与生态位', '模型结果', '智能体'], label_visibility='collapsed')
     st.divider()
     sample_id = st.selectbox('空间样本', [d['id'] for d in spatial_items], format_func=lambda value: next(d['name'] for d in spatial_items if d['id'] == value))
     neighbors = st.selectbox('邻居数', [12, 24])
@@ -119,6 +166,7 @@ context = {'dataset_id': sample_id, 'neighbors': neighbors, 'clusters': clusters
 model = spatial['niche_models'][f'{neighbors}_{clusters}']
 
 if page == '数据概览':
+    eyebrow('Data overview')
     st.title('从细胞状态，看到组织环境')
     st.write('GSE132465 单细胞 × Vizgen 肠癌空间数据')
     metrics = st.columns(4)
@@ -134,6 +182,7 @@ if page == '数据概览':
     st.download_button('下载输入清单', (INPUT / 'manifest.json').read_bytes(), 'manifest.json', 'application/json')
 
 elif page == '细胞状态与代谢':
+    eyebrow('Cellular states')
     st.title('细胞状态与代谢')
     choice = st.selectbox('着色方式', ['原作者细胞类型', '患者', '表达程序', '基因表达'])
     colors, label = [names.get(t, t) for t in reference['labels']], '细胞类型'
@@ -155,6 +204,7 @@ elif page == '细胞状态与代谢':
     export(reference)
 
 elif page == '空间与生态位':
+    eyebrow('Spatial niche')
     st.title('空间与生态位')
     st.caption(f"{spatial['name']} · {neighbors} 近邻 · {clusters} 个生态位 · {'已收敛' if model['converged'] else '未收敛'}")
     choice = st.selectbox('着色方式', ['生态位', '映射细胞类型', '映射支持度', '基因表达'])
@@ -180,6 +230,7 @@ elif page == '空间与生态位':
     export(spatial)
 
 elif page == '模型结果':
+    eyebrow('Model validation')
     st.title('模型结果与验证')
     for item in data['validation']:
         with st.container(border=True):
@@ -190,6 +241,7 @@ elif page == '模型结果':
     st.download_button('下载完整分析结果', json.dumps(data, ensure_ascii=False).encode(), 'analysis.json', 'application/json')
 
 else:
+    eyebrow('Research agent')
     st.title('智能体')
     st.write('解读生态位特征、比较样本差异，结合基因表达解释模型结果。')
     st.caption(f"当前模型：{spatial['name']} · {neighbors} 近邻 · {clusters} 个生态位")
