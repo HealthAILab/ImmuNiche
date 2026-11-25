@@ -1,0 +1,66 @@
+{
+  "schema_version": "0.1",
+  "example_name": "local_crc_single_cell_and_spatial",
+  "species": "human",
+  "cancer_type": "colorectal_cancer",
+  "relationship": "same_cancer_unpaired_cohorts",
+  "candidate_axes": [
+    "proline",
+    "cysteine_active_sulfur"
+  ],
+  "datasets": [
+    {
+      "dataset_id": "GSE132465_demo",
+      "modality": "scrna",
+      "observation_unit": "cell",
+      "counts": "scrna_crc/counts.npz",
+      "genes": "scrna_crc/genes.tsv",
+      "observations": "scrna_crc/cells.tsv",
+      "patient_column": "patient_id",
+      "sample_column": "sample_id",
+      "source": "GSE132465",
+      "reference_label_column": "cell_type_reference",
+      "reference_labels_used_as_model_input": false,
+      "matrix_orientation": "observations_by_genes",
+      "zero_count_filter": "remove_zero_biological_gene_count_cells"
+    },
+    {
+      "dataset_id": "HumanColonCancerPatient1_demo",
+      "modality": "spatial",
+      "observation_unit": "cell",
+      "counts": "HumanColonCancerPatient1/counts.npz",
+      "genes": "HumanColonCancerPatient1/genes.tsv",
+      "observations": "HumanColonCancerPatient1/cells.tsv",
+      "sample_column": "sample_id",
+      "patient_column": "patient_id",
+      "coordinate_columns": [
+        "x",
+        "y"
+      ],
+      "coordinate_units": "source_units_pending_documentation",
+      "source": "Vizgen FFPE showcase",
+      "subset_method": "4000_cells_nearest_coordinate_median",
+      "matrix_orientation": "observations_by_genes",
+      "zero_count_filter": "remove_zero_biological_gene_count_cells"
+    },
+    {
+      "dataset_id": "HumanColonCancerPatient2_demo",
+      "modality": "spatial",
+      "observation_unit": "cell",
+      "counts": "HumanColonCancerPatient2/counts.npz",
+      "genes": "HumanColonCancerPatient2/genes.tsv",
+      "observations": "HumanColonCancerPatient2/cells.tsv",
+      "sample_column": "sample_id",
+      "patient_column": "patient_id",
+      "coordinate_columns": [
+        "x",
+        "y"
+      ],
+      "coordinate_units": "source_units_pending_documentation",
+      "source": "Vizgen FFPE showcase",
+      "subset_method": "4000_cells_nearest_coordinate_median",
+      "matrix_orientation": "observations_by_genes",
+      "zero_count_filter": "remove_zero_biological_gene_count_cells"
+    }
+  ]
+}

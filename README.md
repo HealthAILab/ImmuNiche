@@ -19,7 +19,7 @@ python code/webapp/server.py --port 8765
 
 打开 `http://127.0.0.1:8765`。Windows 可双击 `启动网页.cmd`。
 
-提供了可直接运行的真实开发子集及已计算基线，启动后即可浏览。点击“重新运行示例基线”可重新计算。
+先按下方说明准备输入，再启动服务。点击“重新运行示例基线”可重新计算。
 
 智能体从服务端环境变量 `DEEPSEEK_API_KEY` 读取凭据。网页展示分析对话，凭据不进入前端或版本库。问题、最近对话与工具查询汇总会发送至模型服务。
 
@@ -28,7 +28,15 @@ python code/webapp/server.py --port 8765
 - [GSE132465](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE132465)：2位患者的肿瘤单细胞子集，2,709个细胞、33,694个基因。
 - [Vizgen 公开数据](https://vizgen.com/data-release-program/)：HumanColonCancerPatient1、Patient2 的局部连续区域，分别4,000和3,998个细胞，500个生物基因。
 
-三份数据共有497个基因；单细胞与空间来自同癌种的独立队列。输入矩阵、基因顺序和细胞元信息位于 `data/local_example`。数据来源与输入清单随数据保存，第三方数据遵循原发布方使用条款。
+三份数据共有497个基因；单细胞与空间来自同癌种的独立队列。公开仓库提供代码及输入清单。矩阵、细胞元信息和分析结果在运行时准备，第三方数据遵循原发布方使用条款。
+
+下载GSE132465的 `GSE132465_GEO_processed_CRC_10X_raw_UMI_count_matrix.txt.gz` 与 `GSE132465_GEO_processed_CRC_10X_cell_annotation.txt.gz`。Vizgen下载两张肠癌样本的 `cell_by_gene.csv`、`cell_metadata.csv`，按 `HumanColonCancerPatient1_cell_by_gene.csv` 等样本前缀命名。
+
+```bash
+python code/prepare_local_example.py --scrna-dir /path/to/GSE132465 --spatial-dir /path/to/vizgen
+python code/check_example_inputs.py
+python code/webapp/server.py --port 8765
+```
 
 ## 方法
 

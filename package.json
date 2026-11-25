@@ -1,0 +1,1 @@
+{"name":"immuniche-lab","private":true,"type":"module","scripts":{"build":"python scripts/build_worker.py","test":"node --test worker/test.mjs"}}

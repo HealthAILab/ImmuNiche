@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="免疫细胞状态与空间生态位的本地数据分析工作台">
+  <title>ImmuNiche Lab · 免疫生态位工作台</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><span class="brand-icon">◈</span><span>ImmuNiche Lab<small>免疫生态位研究工作台</small></span></a>
+    <div class="workspace-label">分析工作台</div>
+    <nav aria-label="页面导航">
+      <button data-page="overview" class="nav active"><span>▦</span>数据概览</button>
+      <button data-page="states" class="nav"><span>◉</span>细胞状态与代谢</button>
+      <button data-page="spatial" class="nav"><span>⌘</span>空间与生态位</button>
+      <button data-page="methods" class="nav"><span>≡</span>分析流程与记录</button>
+      <button data-page="agent" class="nav"><span>✧</span>智能体</button>
+    </nav>
+    <div class="sidebar-note"><span class="tiny-dot"></span> 本地示例项目<strong>肠癌 · 单细胞 + MERSCOPE</strong><p>所有图表来自本机真实数据，结果保存在项目 runs 目录。</p></div>
+    <div class="sidebar-bottom">本地分析 · 按需 AI 查询<small>输入 / 基线分析 / 交互查看</small></div>
+  </aside>
+  <main>
+    <header class="topbar"><div><span class="breadcrumb">研究工作台</span><span class="crumb-divider">/</span><span id="pageCrumb">数据概览</span></div><span class="local-badge"><span class="tiny-dot"></span>本地运行</span></header>
+    <div id="loading" class="loading"><span class="spinner"></span><h2>正在读取真实分析结果</h2><p>连接本机示例数据与结果文件…</p></div>
+    <div id="error" class="error-card" hidden></div>
+    <div id="app" hidden>
+      <section id="page-overview" class="page active">
+        <div class="page-heading"><div><div class="eyebrow">DATA OVERVIEW</div><h1>从细胞状态，看到组织环境</h1><p>先认识输入数据，再追踪代谢程序与局部细胞组合。</p></div><button class="button secondary" id="downloadManifest">下载输入清单</button></div>
+        <div class="project-strip"><span class="tag teal">真实数据 · 开发示例</span><span>GSE132465 × Vizgen 肠癌</span><span class="strip-last" id="updatedAt"></span></div>
+        <div class="metrics" id="overviewMetrics"></div>
+        <div class="two-columns overview-columns">
+          <article class="panel"><div class="panel-title"><div><h2>输入数据</h2><p>独立保存计数、基因和细胞信息</p></div><span class="pill">3 份</span></div><div id="datasetCards"></div></article>
+          <article class="panel"><div class="panel-title"><div><h2>当前分析进度</h2><p>已完成的基线与下一步模型</p></div></div><div id="pipelineCompact"></div><div class="callout">下一步：接入自身状态与空间环境双分支 GNN，对照现有基线评估新患者表现。</div><button class="button primary full" id="openSpatial">查看空间结果</button></article>
+        </div>
+        <article class="panel"><div class="panel-title"><div><h2>看什么，得到什么</h2><p>细胞自身与周围环境分别查看，组合分析。</p></div></div><div class="feature-grid"><div><span class="feature-icon">01</span><h3>细胞自身状态</h3><p>查看细胞类型、代谢相关表达和免疫功能程序。</p></div><div><span class="feature-icon">02</span><h3>周围空间环境</h3><p>查看相邻细胞组成，以及不同尺度的局部组合。</p></div><div><span class="feature-icon">03</span><h3>目标生态位</h3><p>比较样本中的生态位分布，形成后续机制分析对象。</p></div></div></article>
+      </section>
+      <section id="page-states" class="page">
+        <div class="page-heading"><div><div class="eyebrow">CELL STATE</div><h1>细胞状态与代谢</h1><p>GSE132465 · 2位患者的肿瘤细胞子集</p></div><button class="button secondary export" data-export="reference">下载细胞结果</button></div>
+        <div class="controls"><label>着色方式<select id="stateColor"><option value="type">原作者细胞类型</option><option value="patient">患者</option><option value="program:proline">脯氨酸相关表达</option><option value="program:sulfur">活性硫／氧化还原相关表达</option><option value="gene">基因原始计数</option></select></label><label class="gene-control">表达基因<div class="input-with-button"><input id="stateGene" value="MPST" list="stateGeneList" aria-label="单细胞表达基因"><button id="showStateGene">显示</button></div><datalist id="stateGeneList"></datalist></label><span id="stateStatus" class="control-status"></span></div>
+        <div class="two-columns plot-columns"><article class="panel plot-panel"><div class="panel-title"><div><h2>细胞表达分布</h2><p>共有基因 PCA · 点击细胞查看详情</p></div><button class="icon-button" id="saveState" title="保存图像">保存 PNG</button></div><div class="plot-wrap"><canvas id="stateCanvas" aria-label="单细胞表达分布图"></canvas><div id="stateTooltip" class="tooltip" hidden></div></div><div id="stateLegend" class="legend"></div></article><article class="panel"><div class="panel-title"><div><h2>细胞详情</h2><p>选择图中的一个细胞</p></div></div><div id="stateDetail" class="cell-detail empty">点击散点，查看细胞类型、患者和表达程序。</div><h3 class="subheading">细胞组成</h3><div id="referenceComposition" class="bar-list"></div></article></div>
+        <article class="panel"><div class="panel-title"><div><h2>细胞类型与表达程序</h2><p>颜色按每列缩放；数值为该类细胞的平均表达评分</p></div><span class="pill">真实计数计算</span></div><div class="table-scroll" id="programHeatmap"></div><p class="footnote">表达程序在本数据内计算，用于比较相关基因表达；代谢物、通量及蛋白修饰由实验测量。</p></article>
+      </section>
+      <section id="page-spatial" class="page">
+        <div class="page-heading"><div><div class="eyebrow">SPATIAL NICHE</div><h1>空间与生态位</h1><p>细胞位置、邻域组成与生态位归属。</p></div><button class="button secondary export" data-export="spatial">下载空间结果</button></div>
+        <div class="controls spatial-controls"><label>空间样本<select id="spatialSample"></select></label><label>着色方式<select id="spatialColor"><option value="niche">生态位基线</option><option value="type">映射细胞类型</option><option value="support">细胞类型映射支持度</option><option value="gene">基因原始计数</option></select></label><label>邻居数<select id="neighbors"><option>12</option><option>24</option></select></label><label>生态位数<select id="clusters"><option>3</option><option selected>4</option><option>5</option><option>6</option></select></label><label>表达基因<div class="input-with-button"><input id="spatialGene" value="CD68" list="spatialGeneList" aria-label="空间表达基因"><button id="showSpatialGene">显示</button></div><datalist id="spatialGeneList"></datalist></label></div>
+        <div class="project-strip"><span class="tag teal">邻域基线 · GMM</span><span id="spatialStatus"></span><span class="strip-last">GNN：待接入</span></div>
+        <div class="two-columns plot-columns"><article class="panel plot-panel"><div class="panel-title"><div><h2 id="spatialPlotTitle">空间分布</h2><p>滚轮缩放 · 拖动平移 · 点击细胞</p></div><div class="plot-buttons"><button class="icon-button" id="resetSpatial">复位</button><button class="icon-button" id="saveSpatial">保存 PNG</button></div></div><div class="plot-wrap"><canvas id="spatialCanvas" aria-label="空间细胞与生态位分布图"></canvas><div id="spatialTooltip" class="tooltip" hidden></div></div><div id="spatialLegend" class="legend"></div></article><article class="panel"><div class="panel-title"><div><h2>生态位细胞组成</h2><p>选择一个生态位，查看其中心细胞类型构成</p></div></div><div id="nicheFilters" class="chip-list"></div><div id="nicheComposition" class="bar-list"></div><div class="divider"></div><h3>细胞详情</h3><div id="spatialDetail" class="cell-detail empty">点击空间图中的细胞，查看映射支持度与生态位归属概率。</div></article></div>
+        <article class="panel"><div class="panel-title"><div><h2>空间表达覆盖</h2><p>按这份面板实际可测的基因显示程序</p></div></div><div id="coverageList" class="coverage-grid"></div><p class="footnote">样本1用于拟合生态位基线，模型固定后应用于样本2；样本标签按来源保留，患者层面比较待补齐患者元信息。</p></article>
+      </section>
+      <section id="page-methods" class="page">
+        <div class="page-heading"><div><div class="eyebrow">ANALYSIS RECORD</div><h1>分析流程与记录</h1><p>输入、方法、验证结果和可复用输出。</p></div><button class="button primary" id="rebuild">重新运行示例基线</button></div>
+        <div id="jobStatus" class="job-status" hidden></div>
+        <div class="two-columns"><article class="panel"><div class="panel-title"><div><h2>流程状态</h2><p>当前版本使用真实数据基线</p></div></div><div id="pipelineFull"></div></article><article class="panel"><div class="panel-title"><div><h2>按患者留出验证</h2><p>以另一位患者训练，预测留出患者细胞类型</p></div></div><div id="validationCards"></div><p class="footnote">验证来自按细胞类型抽样的开发子集。空间映射显示分类支持度；髓系细胞进一步划分巨噬细胞状态将在下一阶段接入。</p></article></div>
+        <article class="panel"><div class="panel-title"><div><h2>方法与输入记录</h2><p>同一份输入可以重新计算与导出</p></div><button class="button secondary" id="downloadJson">下载完整结果 JSON</button></div><dl id="methodList" class="method-list"></dl><details><summary>查看输入清单</summary><pre id="manifestText"></pre></details></article>
+      </section>
+      <section id="page-agent" class="page">
+        <div class="page-heading"><div><div class="eyebrow">RESEARCH AGENT</div><h1>智能体</h1><p>解读模型结果，解释生态位特征与样本差异。</p></div><span class="pill" id="agentStatus">待启用</span></div>
+        <p id="agentNotice" role="status"></p>
+        <article class="panel"><div class="panel-title"><div><h2>分析对话</h2><p>结合当前空间模型解读，支持连续追问与查询依据。</p></div><button id="agentNew" class="button secondary">新对话</button></div><div class="chip-list" id="agentPrompts"><button class="chip" type="button">解读当前模型的生态位特征</button><button class="chip" type="button">比较两个空间样本的生态位细胞组成</button><button class="chip" type="button">结合 PYCR1 和 MPST 表达解读模型结果</button></div><div id="agentMessages" class="agent-messages" aria-live="polite"></div><form id="agentChat" class="agent-compose"><textarea id="agentQuestion" rows="3" maxlength="6000" aria-label="向智能体提问" placeholder="输入研究问题…" required></textarea><button id="agentSend" class="button primary" type="submit" disabled>发送问题</button></form></article>
+      </section>
+      <footer>ImmuNiche Lab <span>本机真实数据 · 示例基线 · 保留原始输入</span></footer>
+    </div>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </main>
+  <script src="/app.js"></script>
+</body></html>

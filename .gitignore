@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+dist/
+node_modules/
+*.tar.gz
+*.log
+.DS_Store
+data/**
+!data/local_example/
+!data/local_example/manifest.json
+runs/
