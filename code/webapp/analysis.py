@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 from scipy import sparse
+from example_io import load_counts
 from scipy.spatial import cKDTree
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
@@ -31,7 +32,7 @@ TYPE_NAMES = {
 }
 
 def load_input(item):
-    matrix = sparse.load_npz(INPUT / item['counts']).tocsr().astype(np.float32)
+    matrix = load_counts(INPUT / item['counts']).tocsr().astype(np.float32)
     genes = pd.read_csv(INPUT / item['genes'], sep='\t')['gene'].tolist()
     obs = pd.read_csv(INPUT / item['observations'], sep='\t', index_col=0)
     if matrix.shape != (len(obs), len(genes)) or not obs.index.is_unique:

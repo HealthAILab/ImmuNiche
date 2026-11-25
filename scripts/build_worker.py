@@ -12,6 +12,7 @@ from scipy import sparse
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'code/webapp'))
 from deepseek_agent import Agent, SYSTEM, TOOLS
+from example_io import load_counts
 
 
 def packed(value):
@@ -35,7 +36,7 @@ def build():
     assets['/api/manifest'] = {'body': packed(manifest), 'mime': 'application/json; charset=utf-8'}
     for item in manifest['datasets']:
         dataset_id = item['dataset_id']
-        matrix = sparse.load_npz(inputs / item['counts']).tocsc()
+        matrix = load_counts(inputs / item['counts']).tocsc()
         matrix.sort_indices()
         if matrix.shape[0] >= 65536 or matrix.max() >= 65536:
             raise ValueError('Demo binary format requires uint16 rows and counts')

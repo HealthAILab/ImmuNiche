@@ -4,6 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 from scipy import sparse
+from webapp.example_io import load_counts
 
 PROJECT = Path(__file__).resolve().parents[1]
 ROOT = PROJECT / 'data/local_example'
@@ -13,7 +14,7 @@ if __name__ == '__main__':
     manifest = json.loads((ROOT / 'manifest.json').read_text(encoding='utf8'))
     report, gene_sets = [], {}
     for dataset in manifest['datasets']:
-        x = sparse.load_npz(ROOT / dataset['counts'])
+        x = load_counts(ROOT / dataset['counts'])
         genes = pd.read_csv(ROOT / dataset['genes'], sep='\t')['gene']
         obs = pd.read_csv(ROOT / dataset['observations'], sep='\t', index_col=0)
         assert x.shape == (len(obs), len(genes)), 'Shape mismatch'

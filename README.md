@@ -1,4 +1,4 @@
-# ImmuNiche Lab
+# ImmuNiche
 
 免疫细胞状态、空间生态位分析与模型结果解读工作台。
 
@@ -19,7 +19,7 @@ python code/webapp/server.py --port 8765
 
 打开 `http://127.0.0.1:8765`。Windows 可双击 `启动网页.cmd`。
 
-先按下方说明准备输入，再启动服务。点击“重新运行示例基线”可重新计算。
+仓库附带经授权公开的真实开发子集及预计算结果，启动即可查看。点击“重新运行示例基线”可重新计算。
 
 智能体从服务端环境变量 `DEEPSEEK_API_KEY` 读取凭据。网页展示分析对话，凭据不进入前端或版本库。问题、最近对话与工具查询汇总会发送至模型服务。
 
@@ -28,7 +28,7 @@ python code/webapp/server.py --port 8765
 - [GSE132465](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE132465)：2位患者的肿瘤单细胞子集，2,709个细胞、33,694个基因。
 - [Vizgen 公开数据](https://vizgen.com/data-release-program/)：HumanColonCancerPatient1、Patient2 的局部连续区域，分别4,000和3,998个细胞，500个生物基因。
 
-三份数据共有497个基因；单细胞与空间来自同癌种的独立队列。公开仓库提供代码及输入清单。矩阵、细胞元信息和分析结果在运行时准备，第三方数据遵循原发布方使用条款。
+三份数据共有497个基因；单细胞与空间来自同癌种的独立队列。公开仓库提供代码、输入清单、开发子集和分析结果，第三方数据遵循原发布方使用条款。
 
 下载GSE132465的 `GSE132465_GEO_processed_CRC_10X_raw_UMI_count_matrix.txt.gz` 与 `GSE132465_GEO_processed_CRC_10X_cell_annotation.txt.gz`。Vizgen下载两张肠癌样本的 `cell_by_gene.csv`、`cell_metadata.csv`，按 `HumanColonCancerPatient1_cell_by_gene.csv` 等样本前缀命名。
 
@@ -63,3 +63,11 @@ node --test worker/test.mjs
 ```
 
 测试覆盖实际表达读取、基因缺测、生态位及邻居计数、工具调用流程和凭据隔离。线上智能体和本地智能体均只提供结果查询工具。
+
+## Streamlit 部署
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Community Cloud 中选择仓库 `HealthAILab/ImmuNiche`、分支 `main`、入口 `streamlit_app.py`。在 Advanced settings 的 Secrets 中配置 `DEEPSEEK_API_KEY`，然后部署。推荐子域名 `immuniche`，以平台实际可用名称为准。访客通过公开应用链接进入。

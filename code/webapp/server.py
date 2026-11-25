@@ -10,6 +10,7 @@ import traceback
 import numpy as np
 import pandas as pd
 from scipy import sparse
+from example_io import load_counts
 from analysis import INPUT, OUTPUT, run
 from deepseek_agent import Agent, AgentError
 
@@ -23,7 +24,7 @@ def matrix_for(dataset_id):
     item = next((v for v in items if v['dataset_id'] == dataset_id), None)
     if item is None:
         raise KeyError('Unknown dataset')
-    return sparse.load_npz(INPUT / item['counts']), pd.read_csv(INPUT / item['genes'], sep='\t')['gene'].tolist()
+    return load_counts(INPUT / item['counts']), pd.read_csv(INPUT / item['genes'], sep='\t')['gene'].tolist()
 
 agent = Agent(OUTPUT, matrix_for)
 

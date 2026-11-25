@@ -1,4 +1,4 @@
-# ImmuNiche Lab
+# ImmuNiche
 
 在项目根目录双击“启动网页.cmd”，或运行：
 

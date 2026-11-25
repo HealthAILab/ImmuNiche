@@ -8,7 +8,8 @@ node_modules/
 *.tar.gz
 *.log
 .DS_Store
-data/**
-!data/local_example/
-!data/local_example/manifest.json
-runs/
+.streamlit/secrets.toml
+
+agent_preview.jpg
+
+data/local_example/scrna_crc/counts.npz
