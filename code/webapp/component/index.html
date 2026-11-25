@@ -20,7 +20,7 @@
     <div class="sidebar-bottom">本地分析 · 按需 AI 查询<small>输入 / 基线分析 / 交互查看</small></div>
   </aside>
   <main>
-    <header class="topbar"><div><span class="breadcrumb">研究</span><span class="crumb-divider">/</span><span id="pageCrumb">数据概览</span></div><span class="local-badge"><span class="tiny-dot"></span>本地运行</span></header>
+    <header class="topbar"><div><span class="breadcrumb">研究</span><span class="crumb-divider">/</span><span id="pageCrumb">数据概览</span></div><select id="uiLanguage" aria-label="语言 / Language" style="margin-left:auto;margin-right:14px;padding:5px 9px;border:1px solid #dce6ec;border-radius:7px;background:white;color:#304b5c"><option value="zh">中文</option><option value="en">English</option></select><span class="local-badge"><span class="tiny-dot"></span>本地运行</span></header>
     <div id="loading" class="loading"><span class="spinner"></span><h2>正在读取真实分析结果</h2><p>连接本机示例数据与结果文件…</p></div>
     <div id="error" class="error-card" hidden></div>
     <div id="app" hidden>
@@ -62,5 +62,5 @@
     </div>
     <div id="toast" class="toast" role="status" hidden></div>
   </main>
-  <script src="bridge.js"></script><script src="app.js"></script>
+  <script src="i18n.js"></script><script src="bridge.js"></script><script src="app.js"></script>
 </body></html>

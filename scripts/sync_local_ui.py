@@ -9,10 +9,11 @@ DEST = ROOT / 'code/webapp/component'
 
 def build():
     DEST.mkdir(parents=True, exist_ok=True)
-    for filename in ['index.html', 'app.js', 'style.css']:
+    for filename in ['index.html', 'app.js', 'style.css', 'i18n.js']:
         shutil.copy2(SOURCE / filename, DEST / filename)
     html = (DEST / 'index.html').read_text(encoding='utf8')
     html = html.replace('href="/style.css', 'href="style.css').replace('src="/app.js', 'src="app.js')
+    html = html.replace('src="/i18n.js', 'src="i18n.js')
     html = html.replace('<script src="app.js', '<script src="bridge.js"></script><script src="app.js')
     (DEST / 'index.html').write_text(html, encoding='utf8')
     shutil.copy2(ROOT / 'code/webapp/component_bridge.js', DEST / 'bridge.js')
