@@ -5,6 +5,25 @@
   const bootReady=new Promise(resolve=>resolveBoot=resolve),queue=[],pending=new Map();
   const session=crypto.randomUUID();
   const post=(type,extra={})=>window.parent.postMessage({isStreamlitMessage:true,type,...extra},'*');
+  let heightQueued=false,lastHeight=0;
+  function scheduleHeight(){
+    if(heightQueued)return;
+    heightQueued=true;
+    window.requestAnimationFrame(()=>{
+      heightQueued=false;
+      // Measure normal-flow content, not the iframe viewport: this also allows shrinking.
+      const height=Math.max(680,Math.ceil(document.body.getBoundingClientRect().height)+2);
+      if(height!==lastHeight){lastHeight=height;post('streamlit:setFrameHeight',{height});}
+    });
+  }
+  function observeHeight(){
+    const observer=new ResizeObserver(scheduleHeight);
+    observer.observe(document.body);
+    const main=document.querySelector('main');if(main)observer.observe(main);
+    window.addEventListener('resize',scheduleHeight);
+    if(document.fonts)document.fonts.ready.then(scheduleHeight);
+    scheduleHeight();
+  }
   const response=reply=>new Response(typeof reply.data==='string'&&reply.content_type?reply.data:JSON.stringify(reply.data),{status:reply.status||200,headers:{'Content-Type':reply.content_type||'application/json; charset=utf-8'}});
   function pump(){if(current||!queue.length)return;current=queue.shift();post('streamlit:setComponentValue',{dataType:'json',value:current.request});}
   const nativeFetch=window.fetch.bind(window);
@@ -17,7 +36,7 @@
   window.addEventListener('message',event=>{
     if(event.source!==window.parent||event.data?.type!=='streamlit:render')return;
     const args=event.data.args||{};
-    if(!initialized){initialized=true;resolveBoot(args.bootstrap||{});const rebuild=document.getElementById('rebuild');if(rebuild){rebuild.disabled=true;rebuild.textContent='基线已完成';}const badge=document.querySelector('.local-badge');if(badge)badge.textContent='在线运行';post('streamlit:setFrameHeight',{height:Math.max(680,Math.min(1050,screen.availHeight-150))});}
+    if(!initialized){initialized=true;resolveBoot(args.bootstrap||{});const rebuild=document.getElementById('rebuild');if(rebuild){rebuild.disabled=true;rebuild.textContent='基线已完成';}const badge=document.querySelector('.local-badge');if(badge)badge.textContent='在线运行';observeHeight();}
     const reply=args.reply;
     if(reply&&pending.has(reply.id)){const item=pending.get(reply.id);pending.delete(reply.id);current=null;item.resolve(response(reply));pump();}
   });
