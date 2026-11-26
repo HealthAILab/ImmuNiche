@@ -13,23 +13,20 @@ sys.path.insert(0, str(ROOT / 'code/webapp'))
 from analysis import INPUT, OUTPUT
 from example_io import load_counts
 from deepseek_agent import Agent, AgentError
-from component_api import bootstrap, route_request
+from component_api import RequestError, bootstrap, route_request
 
 st.set_page_config(page_title='ImmuNiche', page_icon='◈', layout='wide', initial_sidebar_state='collapsed')
 st.markdown('<style>.block-container{padding:0!important;max-width:none!important}[data-testid=stHeader]{background:transparent;height:0}[data-testid=stToolbar],[data-testid=stAppDeployButton],footer{display:none!important}.stMain{padding:0!important}iframe{border:0}</style>', unsafe_allow_html=True)
 
 
 def read_service_key():
-    value = os.environ.get('DEEPSEEK_API_KEY', '').strip()
-    if value:
-        return value
     try:
         value = st.secrets.get('DEEPSEEK_API_KEY', '')
         if not value:
             value = st.secrets.get('deepseek', {}).get('api_key', '')
-        return str(value or '').strip()
+        return str(value or os.environ.get('DEEPSEEK_API_KEY', '')).strip()
     except (FileNotFoundError, KeyError):
-        return ''
+        return os.environ.get('DEEPSEEK_API_KEY', '').strip()
 
 
 @lru_cache(maxsize=3)
@@ -47,9 +44,9 @@ def analysis_payload():
 
 
 @st.cache_resource(show_spinner=False)
-def configured_agent(_key):
+def configured_agent(key):
     agent = Agent(OUTPUT, matrix_for)
-    agent.configure(_key)
+    agent.configure(key)
     return agent
 
 
@@ -63,8 +60,8 @@ if isinstance(request, dict) and request.get('id') and request['id'] != st.sessi
         result = route_request(request, matrix_for, lambda: configured_agent(service_key))
     except AgentError as error:
         result = {'data': {'error': str(error)}}
-    except (ValueError, KeyError, TypeError, FileNotFoundError):
-        result = {'data': {'error': '无法处理本次查询，请检查输入。'}, 'status': 400}
+    except RequestError as error:
+        result = {'data': {'error': str(error)}, 'status': 400}
     except Exception:
         result = {'data': {'error': '分析服务暂时不可用，请重试。'}, 'status': 500}
     st.session_state['ui_processed'] = request['id']

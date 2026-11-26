@@ -35,6 +35,8 @@ def request_api(key, path, payload=None):
         raise AgentError(messages.get(error.code, f'分析服务请求失败（HTTP {error.code}）。')) from None
     except (URLError, TimeoutError):
         raise AgentError('分析服务连接超时或网络不可用，请重试。') from None
+    except ValueError:
+        raise AgentError('分析服务返回了无法解析的结果，请稍后重试。') from None
 
 
 def definition(name, description, properties=None, required=None):
@@ -67,8 +69,8 @@ class Agent:
 
     def configure(self, key, model=''):
         key = key.strip()
-        if not key or len(key) > 512 or any(c.isspace() for c in key):
-            raise AgentError('请填写有效的 DeepSeek API Key。')
+        if not key or len(key) > 512 or not key.isascii() or any(c.isspace() for c in key):
+            raise AgentError('服务端 API Key 格式无效，请填写实际凭据。')
         result = self.transport(key, '/models')
         models = [v['id'] for v in result.get('data', []) if isinstance(v.get('id'), str)]
         if not models:

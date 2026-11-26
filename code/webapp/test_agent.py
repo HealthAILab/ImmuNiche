@@ -7,6 +7,13 @@ from server import matrix_for
 
 
 class AgentTests(unittest.TestCase):
+    def test_placeholder_key_rejected_before_network(self):
+        calls = []
+        agent = Agent(OUTPUT, matrix_for, lambda *args: calls.append(args))
+        with self.assertRaises(AgentError):
+            agent.configure('你之前提供的Key')
+        self.assertEqual(calls, [])
+
     def test_real_tools(self):
         agent = Agent(OUTPUT, matrix_for)
         overview = agent.tool('get_overview', {})

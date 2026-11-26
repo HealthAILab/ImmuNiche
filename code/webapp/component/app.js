@@ -9,7 +9,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const percent = value => `${(value*100).toFixed(1)}%`;
 const typeName = key => data.type_names[key] || key;
 function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => $('toast').hidden = true, 3600); }
-async function getJSON(url, options) { const response = await fetch(url, options); if (!response.ok) throw new Error(`请求失败 (${response.status})`); return response.json(); }
+async function getJSON(url, options) { const response = await fetch(url, options); if (!response.ok) { let detail; try { detail=await response.json(); } catch {} throw new Error(detail?.error || `请求失败 (${response.status})`); } return response.json(); }
 async function download(url, filename) { const result=await fetch(url);if(!result.ok){toast('下载失败');return;}const objectUrl=URL.createObjectURL(await result.blob());const a=document.createElement('a');a.href=objectUrl;if(filename)a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(objectUrl),30000); }
 function continuous(value, min, max) { const t = Math.max(0, Math.min(1, (value-min)/(max-min || 1))); const a=[219,239,234], b=[0,119,112]; return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')})`; }
 

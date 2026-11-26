@@ -1,10 +1,19 @@
 import unittest
+import json
 from types import SimpleNamespace
 from component_api import bootstrap, route_request
 from server import matrix_for
 
 
 class ComponentTests(unittest.TestCase):
+    def test_chinese_history_uses_actual_utf8_size(self):
+        history = [{'role': 'assistant', 'content': '生态位' * 1500} for _ in range(3)]
+        request = {'url': '/api/agent/chat', 'method': 'POST', 'body': json.dumps({'message': '解释模型', 'history': history}, ensure_ascii=False)}
+        self.assertGreater(len(json.dumps(request)), 65536)
+        self.assertLess(len(json.dumps(request, ensure_ascii=False).encode('utf8')), 65536)
+        agent = SimpleNamespace(chat=lambda *args, **kwargs: {'answer': '已查询', 'trace': []})
+        self.assertEqual(route_request(request, matrix_for, lambda: agent)['data']['answer'], '已查询')
+
     def test_real_expression_and_export(self):
         result = route_request({'url': '/api/expression?dataset=GSE132465_demo&gene=MPST'}, matrix_for, None)['data']
         self.assertTrue(result['measured'])
