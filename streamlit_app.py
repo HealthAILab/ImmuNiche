@@ -1,4 +1,3 @@
-from pathlib import Path
-import runpy
+from streamlit_local import main
 
-runpy.run_path(str(Path(__file__).with_name("streamlit_local.py")), run_name="__main__")
+main()

@@ -1,6 +1,7 @@
 """Host the local ImmuNiche interface through Streamlit Components."""
 from functools import lru_cache
 from pathlib import Path
+import importlib
 import json
 import os
 import sys
@@ -13,10 +14,11 @@ sys.path.insert(0, str(ROOT / 'code/webapp'))
 from analysis import INPUT, OUTPUT
 from example_io import load_counts
 from deepseek_agent import Agent, AgentError
+import component_api
+# A live deployment can leave the previous API module in the running process.
+if not hasattr(component_api, 'RequestError'):
+    importlib.reload(component_api)
 from component_api import RequestError, bootstrap, route_request
-
-st.set_page_config(page_title='ImmuNiche', page_icon='◈', layout='wide', initial_sidebar_state='collapsed')
-st.markdown('<style>.block-container{padding:0!important;max-width:none!important}[data-testid=stHeader]{background:transparent;height:0}[data-testid=stToolbar],[data-testid=stAppDeployButton],footer{display:none!important}.stMain{padding:0!important}iframe{border:0}</style>', unsafe_allow_html=True)
 
 
 def read_service_key():
@@ -50,20 +52,27 @@ def configured_agent(key):
     return agent
 
 
-service_key = read_service_key()
-initial = dict(analysis_payload())
-initial['/api/agent/status'] = {'configured': bool(service_key)}
-ui = components.declare_component('immuniche_local_ui', path=str(ROOT / 'code/webapp/component'))
-request = ui(bootstrap=initial, reply=st.session_state.get('ui_reply'), default=None, key='local_ui')
-if isinstance(request, dict) and request.get('id') and request['id'] != st.session_state.get('ui_processed'):
-    try:
-        result = route_request(request, matrix_for, lambda: configured_agent(service_key))
-    except AgentError as error:
-        result = {'data': {'error': str(error)}}
-    except RequestError as error:
-        result = {'data': {'error': str(error)}, 'status': 400}
-    except Exception:
-        result = {'data': {'error': '分析服务暂时不可用，请重试。'}, 'status': 500}
-    st.session_state['ui_processed'] = request['id']
-    st.session_state['ui_reply'] = {'id': request['id'], **result}
-    st.rerun()
+def main():
+    st.set_page_config(page_title='ImmuNiche', page_icon='◈', layout='wide', initial_sidebar_state='collapsed')
+    st.markdown('<style>.block-container{padding:0!important;max-width:none!important}[data-testid=stHeader]{background:transparent;height:0}[data-testid=stToolbar],[data-testid=stAppDeployButton],footer{display:none!important}.stMain{padding:0!important}iframe{border:0}</style>', unsafe_allow_html=True)
+    service_key = read_service_key()
+    initial = dict(analysis_payload())
+    initial['/api/agent/status'] = {'configured': bool(service_key)}
+    ui = components.declare_component('immuniche_local_ui', path=str(ROOT / 'code/webapp/component'))
+    request = ui(bootstrap=initial, reply=st.session_state.get('ui_reply'), default=None, key='local_ui')
+    if isinstance(request, dict) and request.get('id') and request['id'] != st.session_state.get('ui_processed'):
+        try:
+            result = route_request(request, matrix_for, lambda: configured_agent(service_key))
+        except AgentError as error:
+            result = {'data': {'error': str(error)}}
+        except RequestError as error:
+            result = {'data': {'error': str(error)}, 'status': 400}
+        except Exception:
+            result = {'data': {'error': '分析服务暂时不可用，请重试。'}, 'status': 500}
+        st.session_state['ui_processed'] = request['id']
+        st.session_state['ui_reply'] = {'id': request['id'], **result}
+        st.rerun()
+
+
+if __name__ == '__main__':
+    main()
